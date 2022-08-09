@@ -14,7 +14,7 @@ import java.util.List;
 public class UserDaoHibernateImpl implements UserDao {
 
     private final Session session = Util.getSessionFactory().openSession();//соединение с бд, рабоатет с объектами
-    final String sqlQuery = "CREATE TABLE IF NOT EXISTS users (`id` INT NOT NULL AUTO_INCREMENT,`name` VARCHAR(45) NULL,`lastName` VARCHAR(45) NULL,`age` VARCHAR(45) NULL, PRIMARY KEY (`id`),UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);";
+
     public UserDaoHibernateImpl() {
 
     }
@@ -25,7 +25,10 @@ public class UserDaoHibernateImpl implements UserDao {
 
         try {
             session.beginTransaction();//проверит, есть ли уже существующая транзакция, если да, то не создаст новую транзакцию
-            session.createSQLQuery(sqlQuery).executeUpdate();//транзакция.фиксация();
+            session.createSQLQuery("CREATE TABLE IF NOT EXISTS users (`id` INT NOT NULL AUTO_INCREMENT," +
+                    "`name` VARCHAR(45) NULL,`lastName` VARCHAR(45)" +
+                    " NULL,`age` VARCHAR(45) NULL, PRIMARY KEY (`id`)," +
+                    "UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)").executeUpdate();//транзакция.фиксация();
             session.getTransaction().commit();//возвращаемый результат;
         } catch (HibernateException e) {
             e.getStackTrace();
@@ -35,11 +38,11 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        String sql = "DROP TABLE IF EXISTS users;";//
+
 
         try {
             session.beginTransaction();
-            session.createSQLQuery(sql).executeUpdate();
+            session.createSQLQuery("DROP TABLE IF EXISTS users;").executeUpdate();
             session.getTransaction().commit();
         } catch (HibernateException e) {
             e.getStackTrace();
@@ -61,11 +64,10 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        String hql = "DELETE User WHERE id = :id";
         try {
             session.beginTransaction();
             session.delete(session.get(User.class,id));//удалить
-            session.createQuery(hql);
+            session.createQuery("DELETE User WHERE id = :id");
             session.getTransaction().commit();
         } catch (HibernateException e) {
             e.getStackTrace();
@@ -89,11 +91,9 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        String hql = "delete User";
-
         try {
             session.beginTransaction();
-            session.createQuery(hql).executeUpdate();
+            session.createQuery("delete User").executeUpdate();
             session.getTransaction().commit();
         } catch (HibernateException e) {
             e.getStackTrace();
